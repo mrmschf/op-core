@@ -1,24 +1,24 @@
-QBCore.Functions = {}
+OPCore.Functions = {}
 
 -- Player
 
-function QBCore.Functions.GetPlayerData(cb)
-    if not cb then return QBCore.PlayerData end
-    cb(QBCore.PlayerData)
+function OPCore.Functions.GetPlayerData(cb)
+    if not cb then return OPCore.PlayerData end
+    cb(OPCore.PlayerData)
 end
 
-function QBCore.Functions.GetCoords(entity)
+function OPCore.Functions.GetCoords(entity)
     local coords = GetEntityCoords(entity)
     return vector4(coords.x, coords.y, coords.z, GetEntityHeading(entity))
 end
 
-function QBCore.Functions.HasItem(items, amount)
+function OPCore.Functions.HasItem(items, amount)
     return exports['qb-inventory']:HasItem(items, amount)
 end
 
 -- Utility
 
-function QBCore.Functions.DrawText(x, y, width, height, scale, r, g, b, a, text)
+function OPCore.Functions.DrawText(x, y, width, height, scale, r, g, b, a, text)
     -- Use local function instead
     SetTextFont(4)
     SetTextScale(scale, scale)
@@ -28,7 +28,7 @@ function QBCore.Functions.DrawText(x, y, width, height, scale, r, g, b, a, text)
     EndTextCommandDisplayText(x - width / 2, y - height / 2 + 0.005)
 end
 
-function QBCore.Functions.DrawText3D(x, y, z, text)
+function OPCore.Functions.DrawText3D(x, y, z, text)
     -- Use local function instead
     SetTextScale(0.35, 0.35)
     SetTextFont(4)
@@ -44,7 +44,7 @@ function QBCore.Functions.DrawText3D(x, y, z, text)
     ClearDrawOrigin()
 end
 
-function QBCore.Functions.RequestAnimDict(animDict)
+function OPCore.Functions.RequestAnimDict(animDict)
     if HasAnimDictLoaded(animDict) then return end
     RequestAnimDict(animDict)
     while not HasAnimDictLoaded(animDict) do
@@ -56,7 +56,7 @@ end
 ---@param timeout number - The time in milliseconds before the function times out
 ---@param speed number - The speed at which the entity should turn
 ---@return number - The time at which the entity was looked at
-function QBCore.Functions.LookAtEntity(entity, timeout, speed)
+function OPCore.Functions.LookAtEntity(entity, timeout, speed)
     local involved = GetInvokingResource()
     if not DoesEntityExist(entity) then
         turnPromise:reject(involved .. ' :^1  Entity does not exist')
@@ -116,7 +116,7 @@ end
 --- @param duration number - The duration of the animation in milliseconds. -1 will play the animation indefinitely
 --- @param upperbodyOnly boolean - If true, the animation will only affect the upper body of the ped
 --- @return number - The timestamp indicating when the animation concluded. For animations set to loop indefinitely, this will still return the maximum duration of the animation.
-function QBCore.Functions.PlayAnim(animDict, animName, upperbodyOnly, duration)
+function OPCore.Functions.PlayAnim(animDict, animName, upperbodyOnly, duration)
     local invoked = GetInvokingResource()
     local animPromise = promise.new()
     if type(animDict) ~= 'string' or type(animName) ~= 'string' then
@@ -160,7 +160,7 @@ function QBCore.Functions.PlayAnim(animDict, animName, upperbodyOnly, duration)
     return animPromise.value
 end
 
-function QBCore.Functions.LoadModel(model)
+function OPCore.Functions.LoadModel(model)
     if HasModelLoaded(model) then return end
     RequestModel(model)
     while not HasModelLoaded(model) do
@@ -168,7 +168,7 @@ function QBCore.Functions.LoadModel(model)
     end
 end
 
-function QBCore.Functions.LoadAnimSet(animSet)
+function OPCore.Functions.LoadAnimSet(animSet)
     if HasAnimSetLoaded(animSet) then return end
     RequestAnimSet(animSet)
     while not HasAnimSetLoaded(animSet) do
@@ -177,10 +177,10 @@ function QBCore.Functions.LoadAnimSet(animSet)
 end
 
 RegisterNUICallback('getNotifyConfig', function(_, cb)
-    cb(QBCore.Config.Notify)
+    cb(OPCore.Config.Notify)
 end)
 
-function QBCore.Functions.Notify(text, texttype, length, icon)
+function OPCore.Functions.Notify(text, texttype, length, icon)
     local message = {
         action = 'notify',
         type = texttype or 'primary',
@@ -201,30 +201,30 @@ function QBCore.Functions.Notify(text, texttype, length, icon)
     SendNUIMessage(message)
 end
 
-function QBCore.Debug(resource, obj, depth)
-    TriggerServerEvent('QBCore:DebugSomething', resource, obj, depth)
+function OPCore.Debug(resource, obj, depth)
+    TriggerServerEvent('OPCore:DebugSomething', resource, obj, depth)
 end
 
 -- Callback Functions --
 
 -- Client Callback
-function QBCore.Functions.CreateClientCallback(name, cb)
-    QBCore.ClientCallbacks[name] = cb
+function OPCore.Functions.CreateClientCallback(name, cb)
+    OPCore.ClientCallbacks[name] = cb
 end
 
-function QBCore.Functions.TriggerClientCallback(name, cb, ...)
-    if not QBCore.ClientCallbacks[name] then return end
-    QBCore.ClientCallbacks[name](cb, ...)
+function OPCore.Functions.TriggerClientCallback(name, cb, ...)
+    if not OPCore.ClientCallbacks[name] then return end
+    OPCore.ClientCallbacks[name](cb, ...)
 end
 
 -- Server Callback
-function QBCore.Functions.TriggerCallback(name, cb, ...)
-    QBCore.ServerCallbacks[name] = cb
-    TriggerServerEvent('QBCore:Server:TriggerCallback', name, ...)
+function OPCore.Functions.TriggerCallback(name, cb, ...)
+    OPCore.ServerCallbacks[name] = cb
+    TriggerServerEvent('OPCore:Server:TriggerCallback', name, ...)
 end
 
-function QBCore.Functions.Progressbar(name, label, duration, useWhileDead, canCancel, disableControls, animation, prop, propTwo, onFinish, onCancel)
-    if GetResourceState('progressbar') ~= 'started' then error('progressbar needs to be started in order for QBCore.Functions.Progressbar to work') end
+function OPCore.Functions.Progressbar(name, label, duration, useWhileDead, canCancel, disableControls, animation, prop, propTwo, onFinish, onCancel)
+    if GetResourceState('progressbar') ~= 'started' then error('progressbar needs to be started in order for OPCore.Functions.Progressbar to work') end
     exports['progressbar']:Progress({
         name = name:lower(),
         duration = duration,
@@ -250,19 +250,19 @@ end
 
 -- Getters
 
-function QBCore.Functions.GetVehicles()
+function OPCore.Functions.GetVehicles()
     return GetGamePool('CVehicle')
 end
 
-function QBCore.Functions.GetObjects()
+function OPCore.Functions.GetObjects()
     return GetGamePool('CObject')
 end
 
-function QBCore.Functions.GetPlayers()
+function OPCore.Functions.GetPlayers()
     return GetActivePlayers()
 end
 
-function QBCore.Functions.GetPeds(ignoreList)
+function OPCore.Functions.GetPeds(ignoreList)
     local pedPool = GetGamePool('CPed')
     local peds = {}
     ignoreList = ignoreList or {}
@@ -280,7 +280,7 @@ function QBCore.Functions.GetPeds(ignoreList)
     return peds
 end
 
-function QBCore.Functions.GetClosestPed(coords, ignoreList)
+function OPCore.Functions.GetClosestPed(coords, ignoreList)
     local ped = PlayerPedId()
     if coords then
         coords = type(coords) == 'table' and vec3(coords.x, coords.y, coords.z) or coords
@@ -288,7 +288,7 @@ function QBCore.Functions.GetClosestPed(coords, ignoreList)
         coords = GetEntityCoords(ped)
     end
     ignoreList = ignoreList or {}
-    local peds = QBCore.Functions.GetPeds(ignoreList)
+    local peds = OPCore.Functions.GetPeds(ignoreList)
     local closestDistance = -1
     local closestPed = -1
     for i = 1, #peds, 1 do
@@ -303,30 +303,30 @@ function QBCore.Functions.GetClosestPed(coords, ignoreList)
     return closestPed, closestDistance
 end
 
-function QBCore.Functions.IsWearingGloves()
+function OPCore.Functions.IsWearingGloves()
     local ped = PlayerPedId()
     local armIndex = GetPedDrawableVariation(ped, 3)
     local model = GetEntityModel(ped)
     if model == `mp_m_freemode_01` then
-        if QBCore.Shared.MaleNoGloves[armIndex] then
+        if OPCore.Shared.MaleNoGloves[armIndex] then
             return false
         end
     else
-        if QBCore.Shared.FemaleNoGloves[armIndex] then
+        if OPCore.Shared.FemaleNoGloves[armIndex] then
             return false
         end
     end
     return true
 end
 
-function QBCore.Functions.GetClosestPlayer(coords)
+function OPCore.Functions.GetClosestPlayer(coords)
     local ped = PlayerPedId()
     if coords then
         coords = type(coords) == 'table' and vec3(coords.x, coords.y, coords.z) or coords
     else
         coords = GetEntityCoords(ped)
     end
-    local closestPlayers = QBCore.Functions.GetPlayersFromCoords(coords)
+    local closestPlayers = OPCore.Functions.GetPlayersFromCoords(coords)
     local closestDistance = -1
     local closestPlayer = -1
     for i = 1, #closestPlayers, 1 do
@@ -343,7 +343,7 @@ function QBCore.Functions.GetClosestPlayer(coords)
     return closestPlayer, closestDistance
 end
 
-function QBCore.Functions.GetPlayersFromCoords(coords, distance)
+function OPCore.Functions.GetPlayersFromCoords(coords, distance)
     local players = GetActivePlayers()
     local ped = PlayerPedId()
     if coords then
@@ -364,7 +364,7 @@ function QBCore.Functions.GetPlayersFromCoords(coords, distance)
     return closePlayers
 end
 
-function QBCore.Functions.GetClosestVehicle(coords)
+function OPCore.Functions.GetClosestVehicle(coords)
     local ped = PlayerPedId()
     local vehicles = GetGamePool('CVehicle')
     local closestDistance = -1
@@ -386,7 +386,7 @@ function QBCore.Functions.GetClosestVehicle(coords)
     return closestVehicle, closestDistance
 end
 
-function QBCore.Functions.GetClosestObject(coords)
+function OPCore.Functions.GetClosestObject(coords)
     local ped = PlayerPedId()
     local objects = GetGamePool('CObject')
     local closestDistance = -1
@@ -407,7 +407,7 @@ function QBCore.Functions.GetClosestObject(coords)
     return closestObject, closestDistance
 end
 
-function QBCore.Functions.GetClosestBone(entity, list)
+function OPCore.Functions.GetClosestBone(entity, list)
     local playerCoords, bone, coords, distance = GetEntityCoords(PlayerPedId())
     for _, element in pairs(list) do
         local boneCoords = GetWorldPositionOfEntityBone(entity, element.id or element)
@@ -426,7 +426,7 @@ function QBCore.Functions.GetClosestBone(entity, list)
     return bone, coords, distance
 end
 
-function QBCore.Functions.GetBoneDistance(entity, boneType, boneIndex)
+function OPCore.Functions.GetBoneDistance(entity, boneType, boneIndex)
     local bone
     if boneType == 1 then
         bone = GetPedBoneIndex(entity, boneIndex)
@@ -438,10 +438,10 @@ function QBCore.Functions.GetBoneDistance(entity, boneType, boneIndex)
     return #(boneCoords - playerCoords)
 end
 
-function QBCore.Functions.AttachProp(ped, model, boneId, x, y, z, xR, yR, zR, vertex)
+function OPCore.Functions.AttachProp(ped, model, boneId, x, y, z, xR, yR, zR, vertex)
     local modelHash = type(model) == 'string' and joaat(model) or model
     local bone = GetPedBoneIndex(ped, boneId)
-    QBCore.Functions.LoadModel(modelHash)
+    OPCore.Functions.LoadModel(modelHash)
     local prop = CreateObject(modelHash, 1.0, 1.0, 1.0, 1, 1, 0)
     AttachEntityToEntity(prop, ped, bone, x, y, z, xR, yR, zR, 1, 1, 0, 1, not vertex and 2 or 0, 1)
     SetModelAsNoLongerNeeded(modelHash)
@@ -450,7 +450,7 @@ end
 
 -- Vehicle
 
-function QBCore.Functions.SpawnVehicle(model, cb, coords, isnetworked, teleportInto)
+function OPCore.Functions.SpawnVehicle(model, cb, coords, isnetworked, teleportInto)
     local ped = PlayerPedId()
     model = type(model) == 'string' and joaat(model) or model
     if not IsModelInCdimage(model) then return end
@@ -460,7 +460,7 @@ function QBCore.Functions.SpawnVehicle(model, cb, coords, isnetworked, teleportI
         coords = GetEntityCoords(ped)
     end
     isnetworked = isnetworked == nil or isnetworked
-    QBCore.Functions.LoadModel(model)
+    OPCore.Functions.LoadModel(model)
     local veh = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, isnetworked, false)
     local netid = NetworkGetNetworkIdFromEntity(veh)
     SetVehicleHasBeenOwnedByPlayer(veh, true)
@@ -473,22 +473,22 @@ function QBCore.Functions.SpawnVehicle(model, cb, coords, isnetworked, teleportI
     if cb then cb(veh) end
 end
 
-function QBCore.Functions.DeleteVehicle(vehicle)
+function OPCore.Functions.DeleteVehicle(vehicle)
     SetEntityAsMissionEntity(vehicle, true, true)
     DeleteVehicle(vehicle)
 end
 
-function QBCore.Functions.GetPlate(vehicle)
+function OPCore.Functions.GetPlate(vehicle)
     if vehicle == 0 then return end
-    return QBCore.Shared.Trim(GetVehicleNumberPlateText(vehicle))
+    return OPCore.Shared.Trim(GetVehicleNumberPlateText(vehicle))
 end
 
-function QBCore.Functions.GetVehicleLabel(vehicle)
+function OPCore.Functions.GetVehicleLabel(vehicle)
     if vehicle == nil or vehicle == 0 then return end
     return GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)))
 end
 
-function QBCore.Functions.SpawnClear(coords, radius)
+function OPCore.Functions.SpawnClear(coords, radius)
     if coords then
         coords = type(coords) == 'table' and vec3(coords.x, coords.y, coords.z) or coords
     else
@@ -507,7 +507,7 @@ function QBCore.Functions.SpawnClear(coords, radius)
     return true
 end
 
-function QBCore.Functions.GetVehicleProperties(vehicle)
+function OPCore.Functions.GetVehicleProperties(vehicle)
     if DoesEntityExist(vehicle) then
         local pearlescentColor, wheelColor = GetVehicleExtraColours(vehicle)
 
@@ -570,14 +570,14 @@ function QBCore.Functions.GetVehicleProperties(vehicle)
 
         return {
             model = GetEntityModel(vehicle),
-            plate = QBCore.Functions.GetPlate(vehicle),
+            plate = OPCore.Functions.GetPlate(vehicle),
             plateIndex = GetVehicleNumberPlateTextIndex(vehicle),
-            bodyHealth = QBCore.Shared.Round(GetVehicleBodyHealth(vehicle), 0.1),
-            engineHealth = QBCore.Shared.Round(GetVehicleEngineHealth(vehicle), 0.1),
-            tankHealth = QBCore.Shared.Round(GetVehiclePetrolTankHealth(vehicle), 0.1),
-            fuelLevel = QBCore.Shared.Round(GetVehicleFuelLevel(vehicle), 0.1),
-            dirtLevel = QBCore.Shared.Round(GetVehicleDirtLevel(vehicle), 0.1),
-            oilLevel = QBCore.Shared.Round(GetVehicleOilLevel(vehicle), 0.1),
+            bodyHealth = OPCore.Shared.Round(GetVehicleBodyHealth(vehicle), 0.1),
+            engineHealth = OPCore.Shared.Round(GetVehicleEngineHealth(vehicle), 0.1),
+            tankHealth = OPCore.Shared.Round(GetVehiclePetrolTankHealth(vehicle), 0.1),
+            fuelLevel = OPCore.Shared.Round(GetVehicleFuelLevel(vehicle), 0.1),
+            dirtLevel = OPCore.Shared.Round(GetVehicleDirtLevel(vehicle), 0.1),
+            oilLevel = OPCore.Shared.Round(GetVehicleOilLevel(vehicle), 0.1),
             color1 = colorPrimary,
             color2 = colorSecondary,
             pearlescentColor = pearlescentColor,
@@ -662,7 +662,7 @@ function QBCore.Functions.GetVehicleProperties(vehicle)
     end
 end
 
-function QBCore.Functions.SetVehicleProperties(vehicle, props)
+function OPCore.Functions.SetVehicleProperties(vehicle, props)
     if DoesEntityExist(vehicle) then
         if props.extras then
             for id, enabled in pairs(props.extras) do
@@ -957,7 +957,7 @@ function QBCore.Functions.SetVehicleProperties(vehicle, props)
     end
 end
 
-function QBCore.Functions.LoadParticleDictionary(dictionary)
+function OPCore.Functions.LoadParticleDictionary(dictionary)
     if HasNamedPtfxAssetLoaded(dictionary) then return end
     RequestNamedPtfxAsset(dictionary)
     while not HasNamedPtfxAssetLoaded(dictionary) do
@@ -965,13 +965,13 @@ function QBCore.Functions.LoadParticleDictionary(dictionary)
     end
 end
 
-function QBCore.Functions.StartParticleAtCoord(dict, ptName, looped, coords, rot, scale, alpha, color, duration)
+function OPCore.Functions.StartParticleAtCoord(dict, ptName, looped, coords, rot, scale, alpha, color, duration)
     if coords then
         coords = type(coords) == 'table' and vec3(coords.x, coords.y, coords.z) or coords
     else
         coords = GetEntityCoords(PlayerPedId())
     end
-    QBCore.Functions.LoadParticleDictionary(dict)
+    OPCore.Functions.LoadParticleDictionary(dict)
     UseParticleFxAssetNextCall(dict)
     SetPtfxAssetNextCall(dict)
     local particleHandle
@@ -995,8 +995,8 @@ function QBCore.Functions.StartParticleAtCoord(dict, ptName, looped, coords, rot
     return particleHandle
 end
 
-function QBCore.Functions.StartParticleOnEntity(dict, ptName, looped, entity, bone, offset, rot, scale, alpha, color, evolution, duration)
-    QBCore.Functions.LoadParticleDictionary(dict)
+function OPCore.Functions.StartParticleOnEntity(dict, ptName, looped, entity, bone, offset, rot, scale, alpha, color, evolution, duration)
+    OPCore.Functions.LoadParticleDictionary(dict)
     UseParticleFxAssetNextCall(dict)
     local particleHandle, boneID
     if bone and GetEntityType(entity) == 1 then
@@ -1035,16 +1035,16 @@ function QBCore.Functions.StartParticleOnEntity(dict, ptName, looped, entity, bo
     return particleHandle
 end
 
-function QBCore.Functions.GetStreetNametAtCoords(coords)
+function OPCore.Functions.GetStreetNametAtCoords(coords)
     local streetname1, streetname2 = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
     return { main = GetStreetNameFromHashKey(streetname1), cross = GetStreetNameFromHashKey(streetname2) }
 end
 
-function QBCore.Functions.GetZoneAtCoords(coords)
+function OPCore.Functions.GetZoneAtCoords(coords)
     return GetLabelText(GetNameOfZone(coords))
 end
 
-function QBCore.Functions.GetCardinalDirection(entity)
+function OPCore.Functions.GetCardinalDirection(entity)
     entity = DoesEntityExist(entity) and entity or PlayerPedId()
     if DoesEntityExist(entity) then
         local heading = GetEntityHeading(entity)
@@ -1062,7 +1062,7 @@ function QBCore.Functions.GetCardinalDirection(entity)
     end
 end
 
-function QBCore.Functions.GetCurrentTime()
+function OPCore.Functions.GetCurrentTime()
     local obj = {}
     obj.min = GetClockMinutes()
     obj.hour = GetClockHours()
@@ -1081,7 +1081,7 @@ function QBCore.Functions.GetCurrentTime()
     return obj
 end
 
-function QBCore.Functions.GetGroundZCoord(coords)
+function OPCore.Functions.GetGroundZCoord(coords)
     if not coords then return end
 
     local retval, groundZ = GetGroundZFor_3dCoord(coords.x, coords.y, coords.z, 0)
@@ -1094,7 +1094,7 @@ function QBCore.Functions.GetGroundZCoord(coords)
     end
 end
 
-function QBCore.Functions.GetGroundHash(entity)
+function OPCore.Functions.GetGroundHash(entity)
     local coords = GetEntityCoords(entity)
     local num = StartShapeTestCapsule(coords.x, coords.y, coords.z + 4, coords.x, coords.y, coords.z - 2.0, 1, 1, entity, 7)
     local retval, success, endCoords, surfaceNormal, materialHash, entityHit = GetShapeTestResultEx(num)

@@ -1,17 +1,17 @@
-QBCore.Functions = {}
-QBCore.Player_Buckets = {}
-QBCore.Entity_Buckets = {}
-QBCore.UsableItems = {}
+OPCore.Functions = {}
+OPCore.Player_Buckets = {}
+OPCore.Entity_Buckets = {}
+OPCore.UsableItems = {}
 
 -- Getters
 -- Get your player first and then trigger a function on them
--- ex: local player = QBCore.Functions.GetPlayer(source)
+-- ex: local player = OPCore.Functions.GetPlayer(source)
 -- ex: local example = player.Functions.functionname(parameter)
 
 ---Gets the coordinates of an entity
 ---@param entity number
 ---@return vector4
-function QBCore.Functions.GetCoords(entity)
+function OPCore.Functions.GetCoords(entity)
     local coords = GetEntityCoords(entity, false)
     local heading = GetEntityHeading(entity)
     return vector4(coords.x, coords.y, coords.z, heading)
@@ -21,7 +21,7 @@ end
 ---@param source any
 ---@param idtype string
 ---@return string?
-function QBCore.Functions.GetIdentifier(source, idtype)
+function OPCore.Functions.GetIdentifier(source, idtype)
     if GetConvarInt('sv_fxdkMode', 0) == 1 then return 'license:fxdk' end
     return GetPlayerIdentifierByType(source, idtype or 'license')
 end
@@ -29,8 +29,8 @@ end
 ---Gets a players server id (source). Returns 0 if no player is found.
 ---@param identifier string
 ---@return number
-function QBCore.Functions.GetSource(identifier)
-    for src, _ in pairs(QBCore.Players) do
+function OPCore.Functions.GetSource(identifier)
+    for src, _ in pairs(OPCore.Players) do
         local idens = GetPlayerIdentifiers(src)
         for _, id in pairs(idens) do
             if identifier == id then
@@ -44,21 +44,21 @@ end
 ---Get player with given server id (source)
 ---@param source any
 ---@return table
-function QBCore.Functions.GetPlayer(source)
+function OPCore.Functions.GetPlayer(source)
     if type(source) == 'number' then
-        return QBCore.Players[source]
+        return OPCore.Players[source]
     else
-        return QBCore.Players[QBCore.Functions.GetSource(source)]
+        return OPCore.Players[OPCore.Functions.GetSource(source)]
     end
 end
 
 ---Get player by citizen id
 ---@param citizenid string
 ---@return table?
-function QBCore.Functions.GetPlayerByCitizenId(citizenid)
-    for src in pairs(QBCore.Players) do
-        if QBCore.Players[src].PlayerData.citizenid == citizenid then
-            return QBCore.Players[src]
+function OPCore.Functions.GetPlayerByCitizenId(citizenid)
+    for src in pairs(OPCore.Players) do
+        if OPCore.Players[src].PlayerData.citizenid == citizenid then
+            return OPCore.Players[src]
         end
     end
     return nil
@@ -67,24 +67,24 @@ end
 ---Get offline player by citizen id
 ---@param citizenid string
 ---@return table?
-function QBCore.Functions.GetOfflinePlayerByCitizenId(citizenid)
-    return QBCore.Player.GetOfflinePlayer(citizenid)
+function OPCore.Functions.GetOfflinePlayerByCitizenId(citizenid)
+    return OPCore.Player.GetOfflinePlayer(citizenid)
 end
 
 ---Get player by license
 ---@param license string
 ---@return table?
-function QBCore.Functions.GetPlayerByLicense(license)
-    return QBCore.Player.GetPlayerByLicense(license)
+function OPCore.Functions.GetPlayerByLicense(license)
+    return OPCore.Player.GetPlayerByLicense(license)
 end
 
 ---Get player by phone number
 ---@param number number
 ---@return table?
-function QBCore.Functions.GetPlayerByPhone(number)
-    for src in pairs(QBCore.Players) do
-        if QBCore.Players[src].PlayerData.charinfo.phone == number then
-            return QBCore.Players[src]
+function OPCore.Functions.GetPlayerByPhone(number)
+    for src in pairs(OPCore.Players) do
+        if OPCore.Players[src].PlayerData.charinfo.phone == number then
+            return OPCore.Players[src]
         end
     end
     return nil
@@ -93,10 +93,10 @@ end
 ---Get player by account id
 ---@param account string
 ---@return table?
-function QBCore.Functions.GetPlayerByAccount(account)
-    for src in pairs(QBCore.Players) do
-        if QBCore.Players[src].PlayerData.charinfo.account == account then
-            return QBCore.Players[src]
+function OPCore.Functions.GetPlayerByAccount(account)
+    for src in pairs(OPCore.Players) do
+        if OPCore.Players[src].PlayerData.charinfo.account == account then
+            return OPCore.Players[src]
         end
     end
     return nil
@@ -106,11 +106,11 @@ end
 ---@param property string
 ---@param value string
 ---@return table?
-function QBCore.Functions.GetPlayerByCharInfo(property, value)
-    for src in pairs(QBCore.Players) do
-        local charinfo = QBCore.Players[src].PlayerData.charinfo
+function OPCore.Functions.GetPlayerByCharInfo(property, value)
+    for src in pairs(OPCore.Players) do
+        local charinfo = OPCore.Players[src].PlayerData.charinfo
         if charinfo[property] ~= nil and charinfo[property] == value then
-            return QBCore.Players[src]
+            return OPCore.Players[src]
         end
     end
     return nil
@@ -118,9 +118,9 @@ end
 
 ---Get all players. Returns the server ids of all players.
 ---@return table
-function QBCore.Functions.GetPlayers()
+function OPCore.Functions.GetPlayers()
     local sources = {}
-    for k in pairs(QBCore.Players) do
+    for k in pairs(OPCore.Players) do
         sources[#sources + 1] = k
     end
     return sources
@@ -129,17 +129,17 @@ end
 ---Will return an array of QB Player class instances
 ---unlike the GetPlayers() wrapper which only returns IDs
 ---@return table
-function QBCore.Functions.GetQBPlayers()
-    return QBCore.Players
+function OPCore.Functions.GetQBPlayers()
+    return OPCore.Players
 end
 
 ---Gets a list of all on duty players of a specified job and the number
 ---@param job string
 ---@return table, number
-function QBCore.Functions.GetPlayersOnDuty(job)
+function OPCore.Functions.GetPlayersOnDuty(job)
     local players = {}
     local count = 0
-    for src, Player in pairs(QBCore.Players) do
+    for src, Player in pairs(OPCore.Players) do
         if Player.PlayerData.job.name == job then
             if Player.PlayerData.job.onduty then
                 players[#players + 1] = src
@@ -153,9 +153,9 @@ end
 ---Returns only the amount of players on duty for the specified job
 ---@param job any
 ---@return number
-function QBCore.Functions.GetDutyCount(job)
+function OPCore.Functions.GetDutyCount(job)
     local count = 0
-    for _, Player in pairs(QBCore.Players) do
+    for _, Player in pairs(OPCore.Players) do
         if Player.PlayerData.job.name == job then
             if Player.PlayerData.job.onduty then
                 count += 1
@@ -169,20 +169,20 @@ end
 
 ---Returns the objects related to buckets, first returned value is the player buckets, second one is entity buckets
 ---@return table, table
-function QBCore.Functions.GetBucketObjects()
-    return QBCore.Player_Buckets, QBCore.Entity_Buckets
+function OPCore.Functions.GetBucketObjects()
+    return OPCore.Player_Buckets, OPCore.Entity_Buckets
 end
 
 ---Will set the provided player id / source into the provided bucket id
 ---@param source any
 ---@param bucket any
 ---@return boolean
-function QBCore.Functions.SetPlayerBucket(source, bucket)
+function OPCore.Functions.SetPlayerBucket(source, bucket)
     if source and bucket then
-        local plicense = QBCore.Functions.GetIdentifier(source, 'license')
+        local plicense = OPCore.Functions.GetIdentifier(source, 'license')
         Player(source).state:set('instance', bucket, true)
         SetPlayerRoutingBucket(source, bucket)
-        QBCore.Player_Buckets[plicense] = { id = source, bucket = bucket }
+        OPCore.Player_Buckets[plicense] = { id = source, bucket = bucket }
         return true
     else
         return false
@@ -193,10 +193,10 @@ end
 ---@param entity number
 ---@param bucket number
 ---@return boolean
-function QBCore.Functions.SetEntityBucket(entity, bucket)
+function OPCore.Functions.SetEntityBucket(entity, bucket)
     if entity and bucket then
         SetEntityRoutingBucket(entity, bucket)
-        QBCore.Entity_Buckets[entity] = { id = entity, bucket = bucket }
+        OPCore.Entity_Buckets[entity] = { id = entity, bucket = bucket }
         return true
     else
         return false
@@ -206,10 +206,10 @@ end
 ---Will return an array of all the player ids inside the current bucket
 ---@param bucket number
 ---@return table|boolean
-function QBCore.Functions.GetPlayersInBucket(bucket)
+function OPCore.Functions.GetPlayersInBucket(bucket)
     local curr_bucket_pool = {}
-    if QBCore.Player_Buckets and next(QBCore.Player_Buckets) then
-        for _, v in pairs(QBCore.Player_Buckets) do
+    if OPCore.Player_Buckets and next(OPCore.Player_Buckets) then
+        for _, v in pairs(OPCore.Player_Buckets) do
             if v.bucket == bucket then
                 curr_bucket_pool[#curr_bucket_pool + 1] = v.id
             end
@@ -224,10 +224,10 @@ end
 ---(not for player entities, use GetPlayersInBucket for that)
 ---@param bucket number
 ---@return table|boolean
-function QBCore.Functions.GetEntitiesInBucket(bucket)
+function OPCore.Functions.GetEntitiesInBucket(bucket)
     local curr_bucket_pool = {}
-    if QBCore.Entity_Buckets and next(QBCore.Entity_Buckets) then
-        for _, v in pairs(QBCore.Entity_Buckets) do
+    if OPCore.Entity_Buckets and next(OPCore.Entity_Buckets) then
+        for _, v in pairs(OPCore.Entity_Buckets) do
             if v.bucket == bucket then
                 curr_bucket_pool[#curr_bucket_pool + 1] = v.id
             end
@@ -245,7 +245,7 @@ end
 ---@param coords vector
 ---@param warp boolean
 ---@return number
-function QBCore.Functions.SpawnVehicle(source, model, coords, warp)
+function OPCore.Functions.SpawnVehicle(source, model, coords, warp)
     local ped = GetPlayerPed(source)
     model = type(model) == 'string' and joaat(model) or model
     if not coords then coords = GetEntityCoords(ped) end
@@ -271,7 +271,7 @@ end
 ---@param coords vector
 ---@param warp boolean
 ---@return number
-function QBCore.Functions.CreateAutomobile(source, model, coords, warp)
+function OPCore.Functions.CreateAutomobile(source, model, coords, warp)
     model = type(model) == 'string' and joaat(model) or model
     if not coords then coords = GetEntityCoords(GetPlayerPed(source)) end
     local heading = coords.w and coords.w or 0.0
@@ -293,7 +293,7 @@ end
 ---@param coords vector
 ---@param warp boolean
 ---@return number
-function QBCore.Functions.CreateVehicle(source, model, vehtype, coords, warp)
+function OPCore.Functions.CreateVehicle(source, model, vehtype, coords, warp)
     model = type(model) == 'string' and joaat(model) or model
     vehtype = type(vehtype) == 'string' and tostring(vehtype) or vehtype
     if not coords then coords = GetEntityCoords(GetPlayerPed(source)) end
@@ -306,35 +306,35 @@ end
 
 ---Paychecks (standalone - don't touch)
 function PaycheckInterval()
-    if next(QBCore.Players) then
-        for _, Player in pairs(QBCore.Players) do
+    if next(OPCore.Players) then
+        for _, Player in pairs(OPCore.Players) do
             if Player then
                 local payment = QBShared.Jobs[Player.PlayerData.job.name]['grades'][tostring(Player.PlayerData.job.grade.level)].payment
                 if not payment then payment = Player.PlayerData.job.payment end
                 if Player.PlayerData.job and payment > 0 and (QBShared.Jobs[Player.PlayerData.job.name].offDutyPay or Player.PlayerData.job.onduty) then
-                    if QBCore.Config.Money.PayCheckSociety then
+                    if OPCore.Config.Money.PayCheckSociety then
                         local account = exports['qb-banking']:GetAccountBalance(Player.PlayerData.job.name)
                         if account ~= 0 then          -- Checks if player is employed by a society
                             if account < payment then -- Checks if company has enough money to pay society
-                                TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('error.company_too_poor'), 'error')
+                                TriggerClientEvent('OPCore:Notify', Player.PlayerData.source, Lang:t('error.company_too_poor'), 'error')
                             else
                                 Player.Functions.AddMoney('bank', payment, 'paycheck')
                                 exports['qb-banking']:RemoveMoney(Player.PlayerData.job.name, payment, 'Employee Paycheck')
-                                TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', { value = payment }))
+                                TriggerClientEvent('OPCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', { value = payment }))
                             end
                         else
                             Player.Functions.AddMoney('bank', payment, 'paycheck')
-                            TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', { value = payment }))
+                            TriggerClientEvent('OPCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', { value = payment }))
                         end
                     else
                         Player.Functions.AddMoney('bank', payment, 'paycheck')
-                        TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', { value = payment }))
+                        TriggerClientEvent('OPCore:Notify', Player.PlayerData.source, Lang:t('info.received_paycheck', { value = payment }))
                     end
                 end
             end
         end
     end
-    SetTimeout(QBCore.Config.Money.PayCheckTimeOut * (60 * 1000), PaycheckInterval)
+    SetTimeout(OPCore.Config.Money.PayCheckTimeOut * (60 * 1000), PaycheckInterval)
 end
 
 -- Callback Functions --
@@ -344,16 +344,16 @@ end
 ---@param source any
 ---@param cb function
 ---@param ... any
-function QBCore.Functions.TriggerClientCallback(name, source, cb, ...)
-    QBCore.ClientCallbacks[name] = cb
-    TriggerClientEvent('QBCore:Client:TriggerClientCallback', source, name, ...)
+function OPCore.Functions.TriggerClientCallback(name, source, cb, ...)
+    OPCore.ClientCallbacks[name] = cb
+    TriggerClientEvent('OPCore:Client:TriggerClientCallback', source, name, ...)
 end
 
 ---Create Server Callback
 ---@param name string
 ---@param cb function
-function QBCore.Functions.CreateCallback(name, cb)
-    QBCore.ServerCallbacks[name] = cb
+function OPCore.Functions.CreateCallback(name, cb)
+    OPCore.ServerCallbacks[name] = cb
 end
 
 ---Trigger Serv er Callback
@@ -361,9 +361,9 @@ end
 ---@param source any
 ---@param cb function
 ---@param ... any
-function QBCore.Functions.TriggerCallback(name, source, cb, ...)
-    if not QBCore.ServerCallbacks[name] then return end
-    QBCore.ServerCallbacks[name](source, cb, ...)
+function OPCore.Functions.TriggerCallback(name, source, cb, ...)
+    if not OPCore.ServerCallbacks[name] then return end
+    OPCore.ServerCallbacks[name](source, cb, ...)
 end
 
 -- Items
@@ -371,21 +371,21 @@ end
 ---Create a usable item
 ---@param item string
 ---@param data function
-function QBCore.Functions.CreateUseableItem(item, data)
-    QBCore.UsableItems[item] = data
+function OPCore.Functions.CreateUseableItem(item, data)
+    OPCore.UsableItems[item] = data
 end
 
 ---Checks if the given item is usable
 ---@param item string
 ---@return any
-function QBCore.Functions.CanUseItem(item)
-    return QBCore.UsableItems[item]
+function OPCore.Functions.CanUseItem(item)
+    return OPCore.UsableItems[item]
 end
 
 ---Use item
 ---@param source any
 ---@param item string
-function QBCore.Functions.UseItem(source, item)
+function OPCore.Functions.UseItem(source, item)
     if GetResourceState('qb-inventory') == 'missing' then return end
     exports['qb-inventory']:UseItem(source, item)
 end
@@ -395,8 +395,8 @@ end
 ---@param reason string
 ---@param setKickReason boolean
 ---@param deferrals boolean
-function QBCore.Functions.Kick(source, reason, setKickReason, deferrals)
-    reason = '\n' .. reason .. '\n🔸 Check our Discord for further information: ' .. QBCore.Config.Server.Discord
+function OPCore.Functions.Kick(source, reason, setKickReason, deferrals)
+    reason = '\n' .. reason .. '\n🔸 Check our Discord for further information: ' .. OPCore.Config.Server.Discord
     if setKickReason then
         setKickReason(reason)
     end
@@ -428,9 +428,9 @@ end
 ---Check if player is whitelisted, kept like this for backwards compatibility or future plans
 ---@param source any
 ---@return boolean
-function QBCore.Functions.IsWhitelisted(source)
-    if not QBCore.Config.Server.Whitelist then return true end
-    if QBCore.Functions.HasPermission(source, QBCore.Config.Server.WhitelistPermission) then return true end
+function OPCore.Functions.IsWhitelisted(source)
+    if not OPCore.Config.Server.Whitelist then return true end
+    if OPCore.Functions.HasPermission(source, OPCore.Config.Server.WhitelistPermission) then return true end
     return false
 end
 
@@ -439,27 +439,27 @@ end
 ---Add permission for player
 ---@param source any
 ---@param permission string
-function QBCore.Functions.AddPermission(source, permission)
+function OPCore.Functions.AddPermission(source, permission)
     if not IsPlayerAceAllowed(source, permission) then
         ExecuteCommand(('add_principal player.%s qbcore.%s'):format(source, permission))
-        QBCore.Commands.Refresh(source)
+        OPCore.Commands.Refresh(source)
     end
 end
 
 ---Remove permission from player
 ---@param source any
 ---@param permission string
-function QBCore.Functions.RemovePermission(source, permission)
+function OPCore.Functions.RemovePermission(source, permission)
     if permission then
         if IsPlayerAceAllowed(source, permission) then
             ExecuteCommand(('remove_principal player.%s qbcore.%s'):format(source, permission))
-            QBCore.Commands.Refresh(source)
+            OPCore.Commands.Refresh(source)
         end
     else
-        for _, v in pairs(QBCore.Config.Server.Permissions) do
+        for _, v in pairs(OPCore.Config.Server.Permissions) do
             if IsPlayerAceAllowed(source, v) then
                 ExecuteCommand(('remove_principal player.%s qbcore.%s'):format(source, v))
-                QBCore.Commands.Refresh(source)
+                OPCore.Commands.Refresh(source)
             end
         end
     end
@@ -471,7 +471,7 @@ end
 ---@param source any
 ---@param permission string
 ---@return boolean
-function QBCore.Functions.HasPermission(source, permission)
+function OPCore.Functions.HasPermission(source, permission)
     if type(permission) == 'string' then
         if IsPlayerAceAllowed(source, permission) then return true end
     elseif type(permission) == 'table' then
@@ -486,10 +486,10 @@ end
 ---Get the players permissions
 ---@param source any
 ---@return table
-function QBCore.Functions.GetPermission(source)
+function OPCore.Functions.GetPermission(source)
     local src = source
     local perms = {}
-    for _, v in pairs(QBCore.Config.Server.Permissions) do
+    for _, v in pairs(OPCore.Config.Server.Permissions) do
         if IsPlayerAceAllowed(src, v) then
             perms[v] = true
         end
@@ -500,19 +500,19 @@ end
 ---Get admin messages opt-in state for player
 ---@param source any
 ---@return boolean
-function QBCore.Functions.IsOptin(source)
-    local license = QBCore.Functions.GetIdentifier(source, 'license')
-    if not license or not QBCore.Functions.HasPermission(source, 'admin') then return false end
-    local Player = QBCore.Functions.GetPlayer(source)
+function OPCore.Functions.IsOptin(source)
+    local license = OPCore.Functions.GetIdentifier(source, 'license')
+    if not license or not OPCore.Functions.HasPermission(source, 'admin') then return false end
+    local Player = OPCore.Functions.GetPlayer(source)
     return Player.PlayerData.optin
 end
 
 ---Toggle opt-in to admin messages
 ---@param source any
-function QBCore.Functions.ToggleOptin(source)
-    local license = QBCore.Functions.GetIdentifier(source, 'license')
-    if not license or not QBCore.Functions.HasPermission(source, 'admin') then return end
-    local Player = QBCore.Functions.GetPlayer(source)
+function OPCore.Functions.ToggleOptin(source)
+    local license = OPCore.Functions.GetIdentifier(source, 'license')
+    if not license or not OPCore.Functions.HasPermission(source, 'admin') then return end
+    local Player = OPCore.Functions.GetPlayer(source)
     Player.PlayerData.optin = not Player.PlayerData.optin
     Player.Functions.SetPlayerData('optin', Player.PlayerData.optin)
 end
@@ -520,8 +520,8 @@ end
 ---Check if player is banned
 ---@param source any
 ---@return boolean, string?
-function QBCore.Functions.IsPlayerBanned(source)
-    local plicense = QBCore.Functions.GetIdentifier(source, 'license')
+function OPCore.Functions.IsPlayerBanned(source)
+    local plicense = OPCore.Functions.GetIdentifier(source, 'license')
     local result = MySQL.single.await('SELECT * FROM bans WHERE license = ?', { plicense })
     if not result then return false end
     if os.time() < result.expire then
@@ -536,10 +536,10 @@ end
 ---Check for duplicate license
 ---@param license any
 ---@return boolean
-function QBCore.Functions.IsLicenseInUse(license)
+function OPCore.Functions.IsLicenseInUse(license)
     local players = GetPlayers()
     for _, player in pairs(players) do
-        local playerLicense = QBCore.Functions.GetIdentifier(player, 'license')
+        local playerLicense = OPCore.Functions.GetIdentifier(player, 'license')
         if playerLicense == license then return true end
     end
     return false
@@ -552,7 +552,7 @@ end
 ---@param items table|string
 ---@param amount number
 ---@return boolean
-function QBCore.Functions.HasItem(source, items, amount)
+function OPCore.Functions.HasItem(source, items, amount)
     if GetResourceState('qb-inventory') == 'missing' then return end
     return exports['qb-inventory']:HasItem(source, items, amount)
 end
@@ -562,8 +562,8 @@ end
 ---@param text string
 ---@param type string
 ---@param length number
-function QBCore.Functions.Notify(source, text, type, length)
-    TriggerClientEvent('QBCore:Notify', source, text, type, length)
+function OPCore.Functions.Notify(source, text, type, length)
+    TriggerClientEvent('OPCore:Notify', source, text, type, length)
 end
 
 ---???? ... ok
@@ -571,10 +571,10 @@ end
 ---@param data any
 ---@param pattern any
 ---@return boolean
-function QBCore.Functions.PrepForSQL(source, data, pattern)
+function OPCore.Functions.PrepForSQL(source, data, pattern)
     data = tostring(data)
     local src = source
-    local player = QBCore.Functions.GetPlayer(src)
+    local player = OPCore.Functions.GetPlayer(src)
     local result = string.match(data, pattern)
     if not result or string.len(result) ~= string.len(data) then
         TriggerEvent('qb-log:server:CreateLog', 'anticheat', 'SQL Exploit Attempted', 'red', string.format('%s attempted to exploit SQL!', player.PlayerData.license))

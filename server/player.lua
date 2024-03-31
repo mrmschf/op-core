@@ -1,15 +1,15 @@
-QBCore.Players = {}
-QBCore.Player = {}
+OPCore.Players = {}
+OPCore.Player = {}
 
 -- On player login get their data or set defaults
 -- Don't touch any of this unless you know what you are doing
 -- Will cause major issues!
 
 local resourceName = GetCurrentResourceName()
-function QBCore.Player.Login(source, citizenid, newData)
+function OPCore.Player.Login(source, citizenid, newData)
     if source and source ~= '' then
         if citizenid then
-            local license = QBCore.Functions.GetIdentifier(source, 'license')
+            local license = OPCore.Functions.GetIdentifier(source, 'license')
             local PlayerData = MySQL.prepare.await('SELECT * FROM players where citizenid = ?', { citizenid })
             if PlayerData and license == PlayerData.license then
                 PlayerData.money = json.decode(PlayerData.money)
@@ -22,22 +22,22 @@ function QBCore.Player.Login(source, citizenid, newData)
                 else
                     PlayerData.gang = {}
                 end
-                QBCore.Player.CheckPlayerData(source, PlayerData)
+                OPCore.Player.CheckPlayerData(source, PlayerData)
             else
                 DropPlayer(source, Lang:t('info.exploit_dropped'))
                 TriggerEvent('qb-log:server:CreateLog', 'anticheat', 'Anti-Cheat', 'white', GetPlayerName(source) .. ' Has Been Dropped For Character Joining Exploit', false)
             end
         else
-            QBCore.Player.CheckPlayerData(source, newData)
+            OPCore.Player.CheckPlayerData(source, newData)
         end
         return true
     else
-        QBCore.ShowError(resourceName, 'ERROR QBCORE.PLAYER.LOGIN - NO SOURCE GIVEN!')
+        OPCore.ShowError(resourceName, 'ERROR QBCORE.PLAYER.LOGIN - NO SOURCE GIVEN!')
         return false
     end
 end
 
-function QBCore.Player.GetOfflinePlayer(citizenid)
+function OPCore.Player.GetOfflinePlayer(citizenid)
     if citizenid then
         local PlayerData = MySQL.prepare.await('SELECT * FROM players where citizenid = ?', { citizenid })
         if PlayerData then
@@ -52,13 +52,13 @@ function QBCore.Player.GetOfflinePlayer(citizenid)
                 PlayerData.gang = {}
             end
 
-            return QBCore.Player.CheckPlayerData(nil, PlayerData)
+            return OPCore.Player.CheckPlayerData(nil, PlayerData)
         end
     end
     return nil
 end
 
-function QBCore.Player.GetPlayerByLicense(license)
+function OPCore.Player.GetPlayerByLicense(license)
     if license then
         local PlayerData = MySQL.prepare.await('SELECT * FROM players where license = ?', { license })
         if PlayerData then
@@ -73,27 +73,27 @@ function QBCore.Player.GetPlayerByLicense(license)
                 PlayerData.gang = {}
             end
 
-            return QBCore.Player.CheckPlayerData(nil, PlayerData)
+            return OPCore.Player.CheckPlayerData(nil, PlayerData)
         end
     end
     return nil
 end
 
-function QBCore.Player.CheckPlayerData(source, PlayerData)
+function OPCore.Player.CheckPlayerData(source, PlayerData)
     PlayerData = PlayerData or {}
     local Offline = true
     if source then
         PlayerData.source = source
-        PlayerData.license = PlayerData.license or QBCore.Functions.GetIdentifier(source, 'license')
+        PlayerData.license = PlayerData.license or OPCore.Functions.GetIdentifier(source, 'license')
         PlayerData.name = GetPlayerName(source)
         Offline = false
     end
 
-    PlayerData.citizenid = PlayerData.citizenid or QBCore.Player.CreateCitizenId()
+    PlayerData.citizenid = PlayerData.citizenid or OPCore.Player.CreateCitizenId()
     PlayerData.cid = PlayerData.cid or 1
     PlayerData.money = PlayerData.money or {}
     PlayerData.optin = PlayerData.optin or true
-    for moneytype, startamount in pairs(QBCore.Config.Money.MoneyTypes) do
+    for moneytype, startamount in pairs(OPCore.Config.Money.MoneyTypes) do
         PlayerData.money[moneytype] = PlayerData.money[moneytype] or startamount
     end
 
@@ -105,8 +105,8 @@ function QBCore.Player.CheckPlayerData(source, PlayerData)
     PlayerData.charinfo.gender = PlayerData.charinfo.gender or 0
     PlayerData.charinfo.backstory = PlayerData.charinfo.backstory or 'placeholder backstory'
     PlayerData.charinfo.nationality = PlayerData.charinfo.nationality or 'USA'
-    PlayerData.charinfo.phone = PlayerData.charinfo.phone or QBCore.Functions.CreatePhoneNumber()
-    PlayerData.charinfo.account = PlayerData.charinfo.account or QBCore.Functions.CreateAccountNumber()
+    PlayerData.charinfo.phone = PlayerData.charinfo.phone or OPCore.Functions.CreatePhoneNumber()
+    PlayerData.charinfo.account = PlayerData.charinfo.account or OPCore.Functions.CreateAccountNumber()
     -- Metadata
     PlayerData.metadata = PlayerData.metadata or {}
     PlayerData.metadata['hunger'] = PlayerData.metadata['hunger'] or 100
@@ -122,7 +122,7 @@ function QBCore.Player.CheckPlayerData(source, PlayerData)
     PlayerData.metadata['status'] = PlayerData.metadata['status'] or {}
     PlayerData.metadata['phone'] = PlayerData.metadata['phone'] or {}
     PlayerData.metadata['fitbit'] = PlayerData.metadata['fitbit'] or {}
-    PlayerData.metadata['bloodtype'] = PlayerData.metadata['bloodtype'] or QBCore.Config.Player.Bloodtypes[math.random(1, #QBCore.Config.Player.Bloodtypes)]
+    PlayerData.metadata['bloodtype'] = PlayerData.metadata['bloodtype'] or OPCore.Config.Player.Bloodtypes[math.random(1, #OPCore.Config.Player.Bloodtypes)]
     PlayerData.metadata['dealerrep'] = PlayerData.metadata['dealerrep'] or 0
     PlayerData.metadata['craftingrep'] = PlayerData.metadata['craftingrep'] or 0
     PlayerData.metadata['attachmentcraftingrep'] = PlayerData.metadata['attachmentcraftingrep'] or 0
@@ -133,8 +133,8 @@ function QBCore.Player.CheckPlayerData(source, PlayerData)
     PlayerData.metadata['jobrep']['taxi'] = PlayerData.metadata['jobrep']['taxi'] or 0
     PlayerData.metadata['jobrep']['hotdog'] = PlayerData.metadata['jobrep']['hotdog'] or 0
     PlayerData.metadata['callsign'] = PlayerData.metadata['callsign'] or 'NO CALLSIGN'
-    PlayerData.metadata['fingerprint'] = PlayerData.metadata['fingerprint'] or QBCore.Player.CreateFingerId()
-    PlayerData.metadata['walletid'] = PlayerData.metadata['walletid'] or QBCore.Player.CreateWalletId()
+    PlayerData.metadata['fingerprint'] = PlayerData.metadata['fingerprint'] or OPCore.Player.CreateFingerId()
+    PlayerData.metadata['walletid'] = PlayerData.metadata['walletid'] or OPCore.Player.CreateWalletId()
     PlayerData.metadata['criminalrecord'] = PlayerData.metadata['criminalrecord'] or {
         ['hasRecord'] = false,
         ['date'] = nil
@@ -152,25 +152,25 @@ function QBCore.Player.CheckPlayerData(source, PlayerData)
         }
     }
     PlayerData.metadata['phonedata'] = PlayerData.metadata['phonedata'] or {
-        SerialNumber = QBCore.Player.CreateSerialNumber(),
+        SerialNumber = OPCore.Player.CreateSerialNumber(),
         InstalledApps = {},
     }
     -- Job
-    if PlayerData.job and PlayerData.job.name and not QBCore.Shared.Jobs[PlayerData.job.name] then PlayerData.job = nil end
+    if PlayerData.job and PlayerData.job.name and not OPCore.Shared.Jobs[PlayerData.job.name] then PlayerData.job = nil end
     PlayerData.job = PlayerData.job or {}
     PlayerData.job.name = PlayerData.job.name or 'unemployed'
     PlayerData.job.label = PlayerData.job.label or 'Civilian'
     PlayerData.job.payment = PlayerData.job.payment or 10
     PlayerData.job.type = PlayerData.job.type or 'none'
-    if QBCore.Shared.ForceJobDefaultDutyAtLogin or PlayerData.job.onduty == nil then
-        PlayerData.job.onduty = QBCore.Shared.Jobs[PlayerData.job.name].defaultDuty
+    if OPCore.Shared.ForceJobDefaultDutyAtLogin or PlayerData.job.onduty == nil then
+        PlayerData.job.onduty = OPCore.Shared.Jobs[PlayerData.job.name].defaultDuty
     end
     PlayerData.job.isboss = PlayerData.job.isboss or false
     PlayerData.job.grade = PlayerData.job.grade or {}
     PlayerData.job.grade.name = PlayerData.job.grade.name or 'Freelancer'
     PlayerData.job.grade.level = PlayerData.job.grade.level or 0
     -- Gang
-    if PlayerData.gang and PlayerData.gang.name and not QBCore.Shared.Gangs[PlayerData.gang.name] then PlayerData.gang = nil end
+    if PlayerData.gang and PlayerData.gang.name and not OPCore.Shared.Gangs[PlayerData.gang.name] then PlayerData.gang = nil end
     PlayerData.gang = PlayerData.gang or {}
     PlayerData.gang.name = PlayerData.gang.name or 'none'
     PlayerData.gang.label = PlayerData.gang.label or 'No Gang Affiliaton'
@@ -179,26 +179,26 @@ function QBCore.Player.CheckPlayerData(source, PlayerData)
     PlayerData.gang.grade.name = PlayerData.gang.grade.name or 'none'
     PlayerData.gang.grade.level = PlayerData.gang.grade.level or 0
     -- Other
-    PlayerData.position = PlayerData.position or QBCore.Config.DefaultSpawn
+    PlayerData.position = PlayerData.position or OPCore.Config.DefaultSpawn
     PlayerData.items = GetResourceState('qb-inventory') ~= 'missing' and exports['qb-inventory']:LoadInventory(PlayerData.source, PlayerData.citizenid) or {}
-    return QBCore.Player.CreatePlayer(PlayerData, Offline)
+    return OPCore.Player.CreatePlayer(PlayerData, Offline)
 end
 
 -- On player logout
 
-function QBCore.Player.Logout(source)
-    TriggerClientEvent('QBCore:Client:OnPlayerUnload', source)
-    TriggerEvent('QBCore:Server:OnPlayerUnload', source)
-    TriggerClientEvent('QBCore:Player:UpdatePlayerData', source)
+function OPCore.Player.Logout(source)
+    TriggerClientEvent('OPCore:Client:OnPlayerUnload', source)
+    TriggerEvent('OPCore:Server:OnPlayerUnload', source)
+    TriggerClientEvent('OPCore:Player:UpdatePlayerData', source)
     Wait(200)
-    QBCore.Players[source] = nil
+    OPCore.Players[source] = nil
 end
 
 -- Create a new character
 -- Don't touch any of this unless you know what you are doing
 -- Will cause major issues!
 
-function QBCore.Player.CreatePlayer(PlayerData, Offline)
+function OPCore.Player.CreatePlayer(PlayerData, Offline)
     local self = {}
     self.Functions = {}
     self.PlayerData = PlayerData
@@ -206,20 +206,20 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
 
     function self.Functions.UpdatePlayerData()
         if self.Offline then return end -- Unsupported for Offline Players
-        TriggerEvent('QBCore:Player:SetPlayerData', self.PlayerData)
-        TriggerClientEvent('QBCore:Player:SetPlayerData', self.PlayerData.source, self.PlayerData)
+        TriggerEvent('OPCore:Player:SetPlayerData', self.PlayerData)
+        TriggerClientEvent('OPCore:Player:SetPlayerData', self.PlayerData.source, self.PlayerData)
     end
 
     function self.Functions.SetJob(job, grade)
         job = job:lower()
         grade = tostring(grade) or '0'
-        if not QBCore.Shared.Jobs[job] then return false end
+        if not OPCore.Shared.Jobs[job] then return false end
         self.PlayerData.job.name = job
-        self.PlayerData.job.label = QBCore.Shared.Jobs[job].label
-        self.PlayerData.job.onduty = QBCore.Shared.Jobs[job].defaultDuty
-        self.PlayerData.job.type = QBCore.Shared.Jobs[job].type or 'none'
-        if QBCore.Shared.Jobs[job].grades[grade] then
-            local jobgrade = QBCore.Shared.Jobs[job].grades[grade]
+        self.PlayerData.job.label = OPCore.Shared.Jobs[job].label
+        self.PlayerData.job.onduty = OPCore.Shared.Jobs[job].defaultDuty
+        self.PlayerData.job.type = OPCore.Shared.Jobs[job].type or 'none'
+        if OPCore.Shared.Jobs[job].grades[grade] then
+            local jobgrade = OPCore.Shared.Jobs[job].grades[grade]
             self.PlayerData.job.grade = {}
             self.PlayerData.job.grade.name = jobgrade.name
             self.PlayerData.job.grade.level = tonumber(grade)
@@ -235,8 +235,8 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
 
         if not self.Offline then
             self.Functions.UpdatePlayerData()
-            TriggerEvent('QBCore:Server:OnJobUpdate', self.PlayerData.source, self.PlayerData.job)
-            TriggerClientEvent('QBCore:Client:OnJobUpdate', self.PlayerData.source, self.PlayerData.job)
+            TriggerEvent('OPCore:Server:OnJobUpdate', self.PlayerData.source, self.PlayerData.job)
+            TriggerClientEvent('OPCore:Client:OnJobUpdate', self.PlayerData.source, self.PlayerData.job)
         end
 
         return true
@@ -245,11 +245,11 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
     function self.Functions.SetGang(gang, grade)
         gang = gang:lower()
         grade = tostring(grade) or '0'
-        if not QBCore.Shared.Gangs[gang] then return false end
+        if not OPCore.Shared.Gangs[gang] then return false end
         self.PlayerData.gang.name = gang
-        self.PlayerData.gang.label = QBCore.Shared.Gangs[gang].label
-        if QBCore.Shared.Gangs[gang].grades[grade] then
-            local ganggrade = QBCore.Shared.Gangs[gang].grades[grade]
+        self.PlayerData.gang.label = OPCore.Shared.Gangs[gang].label
+        if OPCore.Shared.Gangs[gang].grades[grade] then
+            local ganggrade = OPCore.Shared.Gangs[gang].grades[grade]
             self.PlayerData.gang.grade = {}
             self.PlayerData.gang.grade.name = ganggrade.name
             self.PlayerData.gang.grade.level = tonumber(grade)
@@ -263,25 +263,25 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
 
         if not self.Offline then
             self.Functions.UpdatePlayerData()
-            TriggerEvent('QBCore:Server:OnGangUpdate', self.PlayerData.source, self.PlayerData.gang)
-            TriggerClientEvent('QBCore:Client:OnGangUpdate', self.PlayerData.source, self.PlayerData.gang)
+            TriggerEvent('OPCore:Server:OnGangUpdate', self.PlayerData.source, self.PlayerData.gang)
+            TriggerClientEvent('OPCore:Client:OnGangUpdate', self.PlayerData.source, self.PlayerData.gang)
         end
 
         return true
     end
 
     function self.Functions.Notify(text, type, lenght)
-        TriggerClientEvent('QBCore:Notify', self.PlayerData.source, text, type, lenght)
+        TriggerClientEvent('OPCore:Notify', self.PlayerData.source, text, type, lenght)
     end
 
     function self.Functions.HasItem(items, amount)
-        QBCore.Functions.HasItem(self.PlayerData.source, items, amount)
+        OPCore.Functions.HasItem(self.PlayerData.source, items, amount)
     end
 
     function self.Functions.SetJobDuty(onDuty)
         self.PlayerData.job.onduty = not not onDuty -- Make sure the value is a boolean if nil is sent
-        TriggerEvent('QBCore:Server:OnJobUpdate', self.PlayerData.source, self.PlayerData.job)
-        TriggerClientEvent('QBCore:Client:OnJobUpdate', self.PlayerData.source, self.PlayerData.job)
+        TriggerEvent('OPCore:Server:OnJobUpdate', self.PlayerData.source, self.PlayerData.job)
+        TriggerClientEvent('OPCore:Client:OnJobUpdate', self.PlayerData.source, self.PlayerData.job)
         self.Functions.UpdatePlayerData()
     end
 
@@ -328,8 +328,8 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
                 TriggerEvent('qb-log:server:CreateLog', 'playermoney', 'AddMoney', 'lightgreen', '**' .. GetPlayerName(self.PlayerData.source) .. ' (citizenid: ' .. self.PlayerData.citizenid .. ' | id: ' .. self.PlayerData.source .. ')** $' .. amount .. ' (' .. moneytype .. ') added, new ' .. moneytype .. ' balance: ' .. self.PlayerData.money[moneytype] .. ' reason: ' .. reason)
             end
             TriggerClientEvent('hud:client:OnMoneyChange', self.PlayerData.source, moneytype, amount, false)
-            TriggerClientEvent('QBCore:Client:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'add', reason)
-            TriggerEvent('QBCore:Server:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'add', reason)
+            TriggerClientEvent('OPCore:Client:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'add', reason)
+            TriggerEvent('OPCore:Server:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'add', reason)
         end
 
         return true
@@ -341,7 +341,7 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
         amount = tonumber(amount)
         if amount < 0 then return end
         if not self.PlayerData.money[moneytype] then return false end
-        for _, mtype in pairs(QBCore.Config.Money.DontAllowMinus) do
+        for _, mtype in pairs(OPCore.Config.Money.DontAllowMinus) do
             if mtype == moneytype then
                 if (self.PlayerData.money[moneytype] - amount) < 0 then
                     return false
@@ -361,8 +361,8 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
             if moneytype == 'bank' then
                 TriggerClientEvent('qb-phone:client:RemoveBankMoney', self.PlayerData.source, amount)
             end
-            TriggerClientEvent('QBCore:Client:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'remove', reason)
-            TriggerEvent('QBCore:Server:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'remove', reason)
+            TriggerClientEvent('OPCore:Client:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'remove', reason)
+            TriggerEvent('OPCore:Server:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'remove', reason)
         end
 
         return true
@@ -381,8 +381,8 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
             self.Functions.UpdatePlayerData()
             TriggerEvent('qb-log:server:CreateLog', 'playermoney', 'SetMoney', 'green', '**' .. GetPlayerName(self.PlayerData.source) .. ' (citizenid: ' .. self.PlayerData.citizenid .. ' | id: ' .. self.PlayerData.source .. ')** $' .. amount .. ' (' .. moneytype .. ') set, new ' .. moneytype .. ' balance: ' .. self.PlayerData.money[moneytype] .. ' reason: ' .. reason)
             TriggerClientEvent('hud:client:OnMoneyChange', self.PlayerData.source, moneytype, math.abs(difference), difference < 0)
-            TriggerClientEvent('QBCore:Client:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'set', reason)
-            TriggerEvent('QBCore:Server:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'set', reason)
+            TriggerClientEvent('OPCore:Client:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'set', reason)
+            TriggerEvent('OPCore:Server:OnMoneyChange', self.PlayerData.source, moneytype, amount, 'set', reason)
         end
 
         return true
@@ -414,15 +414,15 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
 
     function self.Functions.Save()
         if self.Offline then
-            QBCore.Player.SaveOffline(self.PlayerData)
+            OPCore.Player.SaveOffline(self.PlayerData)
         else
-            QBCore.Player.Save(self.PlayerData.source)
+            OPCore.Player.Save(self.PlayerData.source)
         end
     end
 
     function self.Functions.Logout()
         if self.Offline then return end -- Unsupported for Offline Players
-        QBCore.Player.Logout(self.PlayerData.source)
+        OPCore.Player.Logout(self.PlayerData.source)
     end
 
     function self.Functions.AddMethod(methodName, handler)
@@ -436,11 +436,11 @@ function QBCore.Player.CreatePlayer(PlayerData, Offline)
     if self.Offline then
         return self
     else
-        QBCore.Players[self.PlayerData.source] = self
-        QBCore.Player.Save(self.PlayerData.source)
+        OPCore.Players[self.PlayerData.source] = self
+        OPCore.Player.Save(self.PlayerData.source)
 
         -- At this point we are safe to emit new instance to third party resource for load handling
-        TriggerEvent('QBCore:Server:PlayerLoaded', self)
+        TriggerEvent('OPCore:Server:PlayerLoaded', self)
         self.Functions.UpdatePlayerData()
     end
 end
@@ -448,28 +448,28 @@ end
 -- Add a new function to the Functions table of the player class
 -- Use-case:
 --[[
-    AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
-        QBCore.Functions.AddPlayerMethod(Player.PlayerData.source, "functionName", function(oneArg, orMore)
+    AddEventHandler('OPCore:Server:PlayerLoaded', function(Player)
+        OPCore.Functions.AddPlayerMethod(Player.PlayerData.source, "functionName", function(oneArg, orMore)
             -- do something here
         end)
     end)
 ]]
 
-function QBCore.Functions.AddPlayerMethod(ids, methodName, handler)
+function OPCore.Functions.AddPlayerMethod(ids, methodName, handler)
     local idType = type(ids)
     if idType == 'number' then
         if ids == -1 then
-            for _, v in pairs(QBCore.Players) do
+            for _, v in pairs(OPCore.Players) do
                 v.Functions.AddMethod(methodName, handler)
             end
         else
-            if not QBCore.Players[ids] then return end
+            if not OPCore.Players[ids] then return end
 
-            QBCore.Players[ids].Functions.AddMethod(methodName, handler)
+            OPCore.Players[ids].Functions.AddMethod(methodName, handler)
         end
     elseif idType == 'table' and table.type(ids) == 'array' then
         for i = 1, #ids do
-            QBCore.Functions.AddPlayerMethod(ids[i], methodName, handler)
+            OPCore.Functions.AddPlayerMethod(ids[i], methodName, handler)
         end
     end
 end
@@ -477,36 +477,36 @@ end
 -- Add a new field table of the player class
 -- Use-case:
 --[[
-    AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
-        QBCore.Functions.AddPlayerField(Player.PlayerData.source, "fieldName", "fieldData")
+    AddEventHandler('OPCore:Server:PlayerLoaded', function(Player)
+        OPCore.Functions.AddPlayerField(Player.PlayerData.source, "fieldName", "fieldData")
     end)
 ]]
 
-function QBCore.Functions.AddPlayerField(ids, fieldName, data)
+function OPCore.Functions.AddPlayerField(ids, fieldName, data)
     local idType = type(ids)
     if idType == 'number' then
         if ids == -1 then
-            for _, v in pairs(QBCore.Players) do
+            for _, v in pairs(OPCore.Players) do
                 v.Functions.AddField(fieldName, data)
             end
         else
-            if not QBCore.Players[ids] then return end
+            if not OPCore.Players[ids] then return end
 
-            QBCore.Players[ids].Functions.AddField(fieldName, data)
+            OPCore.Players[ids].Functions.AddField(fieldName, data)
         end
     elseif idType == 'table' and table.type(ids) == 'array' then
         for i = 1, #ids do
-            QBCore.Functions.AddPlayerField(ids[i], fieldName, data)
+            OPCore.Functions.AddPlayerField(ids[i], fieldName, data)
         end
     end
 end
 
 -- Save player info to database (make sure citizenid is the primary key in your database)
 
-function QBCore.Player.Save(source)
+function OPCore.Player.Save(source)
     local ped = GetPlayerPed(source)
     local pcoords = GetEntityCoords(ped)
-    local PlayerData = QBCore.Players[source].PlayerData
+    local PlayerData = OPCore.Players[source].PlayerData
     if PlayerData then
         MySQL.insert('INSERT INTO players (citizenid, cid, license, name, money, charinfo, job, gang, position, metadata) VALUES (:citizenid, :cid, :license, :name, :money, :charinfo, :job, :gang, :position, :metadata) ON DUPLICATE KEY UPDATE cid = :cid, name = :name, money = :money, charinfo = :charinfo, job = :job, gang = :gang, position = :position, metadata = :metadata', {
             citizenid = PlayerData.citizenid,
@@ -521,13 +521,13 @@ function QBCore.Player.Save(source)
             metadata = json.encode(PlayerData.metadata)
         })
         if GetResourceState('qb-inventory') ~= 'missing' then exports['qb-inventory']:SaveInventory(source) end
-        QBCore.ShowSuccess(resourceName, PlayerData.name .. ' PLAYER SAVED!')
+        OPCore.ShowSuccess(resourceName, PlayerData.name .. ' PLAYER SAVED!')
     else
-        QBCore.ShowError(resourceName, 'ERROR QBCORE.PLAYER.SAVE - PLAYERDATA IS EMPTY!')
+        OPCore.ShowError(resourceName, 'ERROR QBCORE.PLAYER.SAVE - PLAYERDATA IS EMPTY!')
     end
 end
 
-function QBCore.Player.SaveOffline(PlayerData)
+function OPCore.Player.SaveOffline(PlayerData)
     if PlayerData then
         MySQL.Async.insert('INSERT INTO players (citizenid, cid, license, name, money, charinfo, job, gang, position, metadata) VALUES (:citizenid, :cid, :license, :name, :money, :charinfo, :job, :gang, :position, :metadata) ON DUPLICATE KEY UPDATE cid = :cid, name = :name, money = :money, charinfo = :charinfo, job = :job, gang = :gang, position = :position, metadata = :metadata', {
             citizenid = PlayerData.citizenid,
@@ -542,9 +542,9 @@ function QBCore.Player.SaveOffline(PlayerData)
             metadata = json.encode(PlayerData.metadata)
         })
         if GetResourceState('qb-inventory') ~= 'missing' then exports['qb-inventory']:SaveInventory(PlayerData, true) end
-        QBCore.ShowSuccess(resourceName, PlayerData.name .. ' OFFLINE PLAYER SAVED!')
+        OPCore.ShowSuccess(resourceName, PlayerData.name .. ' OFFLINE PLAYER SAVED!')
     else
-        QBCore.ShowError(resourceName, 'ERROR QBCORE.PLAYER.SAVEOFFLINE - PLAYERDATA IS EMPTY!')
+        OPCore.ShowError(resourceName, 'ERROR QBCORE.PLAYER.SAVEOFFLINE - PLAYERDATA IS EMPTY!')
     end
 end
 
@@ -565,8 +565,8 @@ local playertables = { -- Add tables as needed
     { table = 'player_vehicles' }
 }
 
-function QBCore.Player.DeleteCharacter(source, citizenid)
-    local license = QBCore.Functions.GetIdentifier(source, 'license')
+function OPCore.Player.DeleteCharacter(source, citizenid)
+    local license = OPCore.Functions.GetIdentifier(source, 'license')
     local result = MySQL.scalar.await('SELECT license FROM players where citizenid = ?', { citizenid })
     if license == result then
         local query = 'DELETE FROM %s WHERE citizenid = ?'
@@ -589,13 +589,13 @@ function QBCore.Player.DeleteCharacter(source, citizenid)
     end
 end
 
-function QBCore.Player.ForceDeleteCharacter(citizenid)
+function OPCore.Player.ForceDeleteCharacter(citizenid)
     local result = MySQL.scalar.await('SELECT license FROM players where citizenid = ?', { citizenid })
     if result then
         local query = 'DELETE FROM %s WHERE citizenid = ?'
         local tableCount = #playertables
         local queries = table.create(tableCount, 0)
-        local Player = QBCore.Functions.GetPlayerByCitizenId(citizenid)
+        local Player = OPCore.Functions.GetPlayerByCitizenId(citizenid)
 
         if Player then
             DropPlayer(Player.PlayerData.source, 'An admin deleted the character which you are currently using')
@@ -615,38 +615,38 @@ end
 
 -- Inventory Backwards Compatibility
 
-function QBCore.Player.SaveInventory(source)
+function OPCore.Player.SaveInventory(source)
     if GetResourceState('qb-inventory') == 'missing' then return end
     exports['qb-inventory']:SaveInventory(source, false)
 end
 
-function QBCore.Player.SaveOfflineInventory(PlayerData)
+function OPCore.Player.SaveOfflineInventory(PlayerData)
     if GetResourceState('qb-inventory') == 'missing' then return end
     exports['qb-inventory']:SaveInventory(PlayerData, true)
 end
 
-function QBCore.Player.GetTotalWeight(items)
+function OPCore.Player.GetTotalWeight(items)
     if GetResourceState('qb-inventory') == 'missing' then return end
     return exports['qb-inventory']:GetTotalWeight(items)
 end
 
-function QBCore.Player.GetSlotsByItem(items, itemName)
+function OPCore.Player.GetSlotsByItem(items, itemName)
     if GetResourceState('qb-inventory') == 'missing' then return end
     return exports['qb-inventory']:GetSlotsByItem(items, itemName)
 end
 
-function QBCore.Player.GetFirstSlotByItem(items, itemName)
+function OPCore.Player.GetFirstSlotByItem(items, itemName)
     if GetResourceState('qb-inventory') == 'missing' then return end
     return exports['qb-inventory']:GetFirstSlotByItem(items, itemName)
 end
 
 -- Util Functions
 
-function QBCore.Player.CreateCitizenId()
+function OPCore.Player.CreateCitizenId()
     local UniqueFound = false
     local CitizenId = nil
     while not UniqueFound do
-        CitizenId = tostring(QBCore.Shared.RandomStr(3) .. QBCore.Shared.RandomInt(5)):upper()
+        CitizenId = tostring(OPCore.Shared.RandomStr(3) .. OPCore.Shared.RandomInt(5)):upper()
         local result = MySQL.prepare.await('SELECT COUNT(*) as count FROM players WHERE citizenid = ?', { CitizenId })
         if result == 0 then
             UniqueFound = true
@@ -655,11 +655,11 @@ function QBCore.Player.CreateCitizenId()
     return CitizenId
 end
 
-function QBCore.Functions.CreateAccountNumber()
+function OPCore.Functions.CreateAccountNumber()
     local UniqueFound = false
     local AccountNumber = nil
     while not UniqueFound do
-        AccountNumber = 'US0' .. math.random(1, 9) .. 'QBCore' .. math.random(1111, 9999) .. math.random(1111, 9999) .. math.random(11, 99)
+        AccountNumber = 'US0' .. math.random(1, 9) .. 'OPCore' .. math.random(1111, 9999) .. math.random(1111, 9999) .. math.random(11, 99)
         local query = '%' .. AccountNumber .. '%'
         local result = MySQL.prepare.await('SELECT COUNT(*) as count FROM players WHERE charinfo LIKE ?', { query })
         if result == 0 then
@@ -669,7 +669,7 @@ function QBCore.Functions.CreateAccountNumber()
     return AccountNumber
 end
 
-function QBCore.Functions.CreatePhoneNumber()
+function OPCore.Functions.CreatePhoneNumber()
     local UniqueFound = false
     local PhoneNumber = nil
     while not UniqueFound do
@@ -683,11 +683,11 @@ function QBCore.Functions.CreatePhoneNumber()
     return PhoneNumber
 end
 
-function QBCore.Player.CreateFingerId()
+function OPCore.Player.CreateFingerId()
     local UniqueFound = false
     local FingerId = nil
     while not UniqueFound do
-        FingerId = tostring(QBCore.Shared.RandomStr(2) .. QBCore.Shared.RandomInt(3) .. QBCore.Shared.RandomStr(1) .. QBCore.Shared.RandomInt(2) .. QBCore.Shared.RandomStr(3) .. QBCore.Shared.RandomInt(4))
+        FingerId = tostring(OPCore.Shared.RandomStr(2) .. OPCore.Shared.RandomInt(3) .. OPCore.Shared.RandomStr(1) .. OPCore.Shared.RandomInt(2) .. OPCore.Shared.RandomStr(3) .. OPCore.Shared.RandomInt(4))
         local query = '%' .. FingerId .. '%'
         local result = MySQL.prepare.await('SELECT COUNT(*) as count FROM `players` WHERE `metadata` LIKE ?', { query })
         if result == 0 then
@@ -697,7 +697,7 @@ function QBCore.Player.CreateFingerId()
     return FingerId
 end
 
-function QBCore.Player.CreateWalletId()
+function OPCore.Player.CreateWalletId()
     local UniqueFound = false
     local WalletId = nil
     while not UniqueFound do
@@ -711,7 +711,7 @@ function QBCore.Player.CreateWalletId()
     return WalletId
 end
 
-function QBCore.Player.CreateSerialNumber()
+function OPCore.Player.CreateSerialNumber()
     local UniqueFound = false
     local SerialNumber = nil
     while not UniqueFound do
